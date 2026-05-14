@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Tech - Gerador & Checker Spotify</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="assets/manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #0a0a0f;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #9b59b6, transparent),
+                radial-gradient(2px 2px at 40px 70px, #8e44ad, transparent),
+                radial-gradient(1px 1px at 90px 40px, #ffffff, transparent),
+                radial-gradient(2px 2px at 160px 120px, #9b59b6, transparent),
+                radial-gradient(1px 1px at 230px 80px, #ffffff, transparent),
+                radial-gradient(2px 2px at 300px 150px, #8e44ad, transparent),
+                radial-gradient(1px 1px at 370px 50px, #ffffff, transparent),
+                radial-gradient(2px 2px at 450px 180px, #9b59b6, transparent);
+            background-repeat: repeat;
+            background-size: 500px 200px;
+            animation: twinkle 5s ease-in-out infinite;
+        }
+        
+        .stars:nth-child(2) {
+            background-size: 400px 180px;
+            animation: twinkle 7s ease-in-out infinite reverse;
+            opacity: 0.7;
+        }
+        
+        .stars:nth-child(3) {
+            background-size: 300px 150px;
+            animation: twinkle 9s ease-in-out infinite;
+            opacity: 0.5;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(142, 68, 173, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(155, 89, 182, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(142, 68, 173, 0.18) 0%, transparent 50%);
+            z-index: -1;
+            animation: pulse 15s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.7; }
+        }
+        
+        header {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(142, 68, 173, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-container img {
+            height: 45px;
+            width: auto;
+        }
+        
+        .store-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logout-btn {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+        }
+        
+
+        
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 200px);
+            padding: 40px 20px;
+        }
+        
+        .login-container {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(20, 15, 30, 0.95) 0%, rgba(15, 10, 25, 0.95) 100%);
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 50px rgba(142, 68, 173, 0.4);
+            border: 2px solid rgba(142, 68, 173, 0.5);
+            backdrop-filter: blur(15px);
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(155, 89, 182, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .login-title {
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffffff 0%, #9b59b6 50%, #8e44ad 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+        
+        .login-subtitle {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ddd;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            border-radius: 12px;
+            border: 2px solid rgba(142, 68, 173, 0.4);
+            background-color: rgba(30, 20, 40, 0.9);
+            color: #ffffff;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .input-group input:focus {
+            border-color: #9b59b6;
+            box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.2), 0 0 20px rgba(142, 68, 173, 0.3);
+        }
+        
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #8e44ad, #9b59b6, #8e44ad);
+            background-size: 200% 200%;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 20px rgba(142, 68, 173, 0.5);
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 35px rgba(142, 68, 173, 0.7);
+        }
+        
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #444, #333);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: none;
+            margin-top: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #555, #444);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        .status.success {
+            background-color: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            color: #4CAF50;
+            display: block;
+        }
+        
+        .status.error {
+            background-color: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #f44336;
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            padding: 30px 20px 0;
+        }
+        
+        .tab {
+            padding: 15px 40px;
+            background: rgba(20, 15, 30, 0.8);
+            border: 2px solid rgba(142, 68, 173, 0.5);
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tab:first-child {
+            border-radius: 12px 0 0 12px;
+            border-right: none;
+        }
+        
+        .tab:last-child {
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .tab:hover {
+            background: rgba(142, 68, 173, 0.2);
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            border-color: #9b59b6;
+            box-shadow: 0 5px 20px rgba(142, 68, 173, 0.5);
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 30px 20px;
+        }
+        
+        .container {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(20, 15, 30, 0.95) 0%, rgba(15, 10, 25, 0.95) 100%);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 50px rgba(142, 68, 173, 0.4);
+            border: 2px solid rgba(142, 68, 173, 0.5);
+            backdrop-filter: blur(15px);
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(155, 89, 182, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 25px;
+            color: #f0f0f0;
+            font-weight: 600;
+            text-shadow: 0 0 20px rgba(155, 89, 182, 0.3);
+        }
+        
+        .input-box,
+        .input-section {
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .input-box input,
+        .input-section textarea {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            border-radius: 12px;
+            border: 2px solid rgba(142, 68, 173, 0.4);
+            background-color: rgba(30, 20, 40, 0.9);
+            color: #ffffff;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .input-box input:focus,
+        .input-section textarea:focus {
+            border-color: #9b59b6;
+            box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.2), 0 0 20px rgba(142, 68, 173, 0.3);
+        }
+        
+        .input-box input::placeholder,
+        .input-section textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .output-box {
+            margin-top: 25px;
+        }
+        
+        .output-box textarea {
+            width: 100%;
+            height: 180px;
+            padding: 14px 16px;
+            font-size: 14px;
+            border-radius: 12px;
+            border: 2px solid rgba(142, 68, 173, 0.4);
+            background-color: rgba(30, 20, 40, 0.9);
+            color: #ffffff;
+            resize: none;
+            outline: none;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .output-box textarea:focus {
+            border-color: #9b59b6;
+            box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.2), 0 0 20px rgba(142, 68, 173, 0.3);
+        }
+        
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #00aa00, #00cc00);
+            box-shadow: 0 4px 15px rgba(0, 170, 0, 0.3);
+            animation: none;
+        }
+        
+        .download-btn:hover {
+            background: linear-gradient(135deg, #00cc00, #00aa00);
+            box-shadow: 0 6px 20px rgba(0, 200, 0, 0.4);
+        }
+        
+        .admin-panel {
+            display: none;
+        }
+        
+        .admin-panel.active {
+            display: block;
+        }
+        
+        .user-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .user-item {
+            background: rgba(30, 20, 40, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(142, 68, 173, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-info .discord-id {
+            color: #9b59b6;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .user-info .credentials {
+            color: #888;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        
+        .delete-btn {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+        }
+        
+        .bottom-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+        }
+        
+        .discord-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5865F2, #7289da);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(88, 101, 242, 0.5);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .discord-btn img {
+            height: 28px;
+            width: auto;
+        }
+        
+        .discord-btn:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 30px rgba(88, 101, 242, 0.7);
+        }
+        
+        .admin-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(142, 68, 173, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .admin-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(142, 68, 173, 0.7);
+        }
+        
+        footer {
+            background: transparent;
+            padding: 15px 40px;
+            text-align: center;
+            border-top: none;
+            color: rgba(136, 136, 136, 0.4);
+            font-size: 12px;
+        }
+        
+        footer span {
+            color: rgba(155, 89, 182, 0.5);
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .logo-container {
+                gap: 10px;
+            }
+            
+            .store-name {
+                font-size: 18px;
+            }
+            
+            .tabs-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .tab {
+                border-radius: 12px !important;
+                border: 2px solid rgba(142, 68, 173, 0.5) !important;
+            }
+            
+            .container {
+                padding: 25px;
+                margin: 0 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-container">
+        <div class="stars"></div>
+        <div class="stars"></div>
+        <div class="stars"></div>
+    </div>
+    
+    <header>
+        <div class="logo-container">
+            <img src="https://cdn.shardcloud.app/8c829f3c-3c1d-45ed-861a-b7d127aab34b/logo.png" alt="Nexus Tech Logo">
+            <div class="store-name">Nexus Tech</div>
+        </div>
+        
+        <div class="header-right" id="headerRight" style="display: none;">
+            <button class="logout-btn" onclick="logout()">🚪 Sair</button>
+        </div>
+    </header>
+    
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <h2 class="login-title">🔐 Acesso Restrito</h2>
+            <p class="login-subtitle">Entre com suas credenciais</p>
+            
+            <div class="input-group">
+                <label for="loginUsername">Usuário</label>
+                <input type="text" id="loginUsername" placeholder="Digite seu usuário">
+            </div>
+            
+            <div class="input-group">
+                <label for="loginPassword">Senha</label>
+                <input type="password" id="loginPassword" placeholder="Digite sua senha">
+            </div>
+            
+            <button class="btn" onclick="login()">Entrar</button>
+            
+            <div id="loginStatus" class="status"></div>
+            
+            <div style="margin-top: 30px; color: #888; font-size: 13px;">
+                <p>Desenvolvido por <span style="color: #9b59b6; font-weight: 600;">Meliodas</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bottom-buttons">
+            <a href="https://discord.gg/sY9YEtsfrf" target="_blank" class="discord-btn" title="Entre no nosso Discord">
+                <img src="assets/discord-icon-svgrepo-com.svg" alt="Discord">
+            </a>
+            <button id="adminBtn" class="admin-btn" onclick="toggleAdminPanel()" title="Painel Admin" style="display: none;">⚙️</button>
+        </div>
+    
+    <div id="mainContent" style="display: none;">
+        <div class="tabs-container">
+            <button class="tab active" onclick="switchTab('generator')">🎲 Gerador de Links</button>
+            <button class="tab" onclick="switchTab('checker')">🔍 Checker de Contas</button>
+        </div>
+        
+        <main>
+            <div class="container">
+                <div id="generator" class="tab-content active">
+                    <h1>Quantos links de Spotify Premium Trimensal você gostaria de gerar?</h1>
+                    <div class="input-box">
+                        <input type="number" id="quantity" placeholder="Digite a quantidade">
+                    </div>
+                    <div class="output-box">
+                        <textarea id="codes" placeholder="Spotify Premium Trimensal..." readonly></textarea>
+                    </div>
+                    <div class="buttons-container">
+                        <button class="btn" onclick="generateCodes()">Gerar Links</button>
+                        <button class="btn btn-secondary" onclick="copyToClipboard()">Copiar</button>
+                        <button class="btn download-btn" onclick="downloadTxtFile()">Baixar Links</button>
+                    </div>
+                </div>
+                
+                <div id="checker" class="tab-content">
+                    <h1>Insira os códigos para verificar contas Spotify Premium</h1>
+                    
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label for="codesInput">Códigos (um por linha)</label>
+                            <textarea id="codesInput" placeholder="Insira os códigos aqui...
+Exemplo: ABC123DEF456
+GHI789JKL012" rows="4"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="output-box" style="margin-top: 25px;">
+                        <label style="display: block; margin-bottom: 8px; color: #9b59b6; font-size: 14px; font-weight: 600; text-align: left;">✅ Links Verificados</label>
+                        <textarea id="allLinksOutput" placeholder="Links verificados aparecerão aqui..." readonly style="height: 200px;"></textarea>
+                        <button class="btn btn-secondary" style="margin-top: 10px; padding: 10px 20px; font-size: 14px;" onclick="copyAllLinks()">📋 Copiar</button>
+                    </div>
+                    
+                    <div class="buttons-container" style="margin-top: 25px;">
+                        <button class="btn" onclick="checkCodes()">🔍 Verificar</button>
+                        <button class="btn btn-secondary" onclick="clearAll()">🗑️ Limpar Tudo</button>
+                        <button class="btn download-btn" onclick="exportAllResults()">📥 Exportar Tudo</button>
+                    </div>
+                    
+                    <div id="statusMessage" class="status"></div>
+                </div>
+            </div>
+        </main>
+        
+        <div id="adminPanel" class="admin-panel" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; padding: 40px;">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2 style="font-size: 28px; background: linear-gradient(135deg, #ffffff 0%, #9b59b6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚙️ Painel Admin</h2>
+                    <button class="logout-btn" onclick="toggleAdminPanel()">✕ Fechar</button>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, rgba(20, 15, 30, 0.95) 0%, rgba(15, 10, 25, 0.95) 100%); padding: 40px; border-radius: 20px; border: 2px solid rgba(142, 68, 173, 0.5);">
+                    <h3 style="margin-bottom: 20px; color: #f0f0f0;">➕ Adicionar Novo Usuário</h3>
+                    
+                    <div class="input-group">
+                        <label for="discordId">ID do Discord</label>
+                        <input type="text" id="discordId" placeholder="Digite o ID do Discord">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="newUsername">Usuário (gerado automaticamente)</label>
+                        <input type="text" id="newUsername" placeholder="Clique em Gerar">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="newPassword">Senha (gerada automaticamente)</label>
+                        <input type="text" id="newPassword" placeholder="Clique em Gerar">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" onclick="generateCredentials()">🎲 Gerar Credenciais</button>
+                        <button class="btn" style="background: linear-gradient(135deg, #00aa00, #00cc00);" onclick="addUser()">✅ Adicionar Usuário</button>
+                    </div>
+                    
+                    <div id="adminStatus" class="status"></div>
+                    
+                    <h3 style="margin-top: 40px; margin-bottom: 20px; color: #f0f0f0;">👥 Usuários Cadastrados</h3>
+                    <div id="userList" class="user-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer id="footer" style="display: none;">
+        <p>Desenvolvido por <span>Meliodas</span> | Nexus Tech © 2026</p>
+    </footer>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem('nexusUsers')) || [];
+        
+        if (users.length === 0) {
+            users.push({
+                discordId: 'admin',
+                username: 'admin',
+                password: 'admin123'
+            });
+            localStorage.setItem('nexusUsers', JSON.stringify(users));
+        }
+        
+        let currentUser = null;
+        
+        function generateRandomString(length) {
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+        
+        function generateCredentials() {
+            document.getElementById('newUsername').value = 'user_' + generateRandomString(6);
+            document.getElementById('newPassword').value = generateRandomString(8);
+        }
+        
+        function addUser() {
+            const discordId = document.getElementById('discordId').value.trim();
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+            const status = document.getElementById('adminStatus');
+            
+            if (!discordId || !username || !password) {
+                showAdminStatus('Preencha todos os campos!', 'error');
+                return;
+            }
+            
+            if (users.find(u => u.discordId === discordId)) {
+                showAdminStatus('Este Discord ID já está cadastrado!', 'error');
+                return;
+            }
+            
+            if (users.find(u => u.username === username)) {
+                showAdminStatus('Este usuário já existe!', 'error');
+                return;
+            }
+            
+            users.push({ discordId, username, password });
+            localStorage.setItem('nexusUsers', JSON.stringify(users));
+            
+            document.getElementById('discordId').value = '';
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            
+            renderUserList();
+            showAdminStatus('Usuário adicionado com sucesso!', 'success');
+        }
+        
+        function deleteUser(discordId) {
+            if (discordId === 'admin') {
+                showAdminStatus('Não pode remover o admin!', 'error');
+                return;
+            }
+            
+            users = users.filter(u => u.discordId !== discordId);
+            localStorage.setItem('nexusUsers', JSON.stringify(users));
+            renderUserList();
+            showAdminStatus('Usuário removido!', 'success');
+        }
+        
+        function renderUserList() {
+            const list = document.getElementById('userList');
+            list.innerHTML = users.map(user => `
+                <div class="user-item">
+                    <div class="user-info">
+                        <div class="discord-id">🆔 ${user.discordId}</div>
+                        <div class="credentials">👤 ${user.username} | 🔑 ${user.password}</div>
+                    </div>
+                    ${user.discordId !== 'admin' ? `<button class="delete-btn" onclick="deleteUser('${user.discordId}')">🗑️ Remover</button>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function showAdminStatus(message, type) {
+            const status = document.getElementById('adminStatus');
+            status.textContent = message;
+            status.className = 'status';
+            
+            if (type === 'success' || type === 'error') {
+                status.classList.add(type);
+            }
+            
+            setTimeout(() => {
+                status.style.opacity = '1';
+            }, 10);
+            
+            if (type) {
+                setTimeout(() => {
+                    status.style.opacity = '0';
+                    setTimeout(() => {
+                        status.className = 'status';
+                    }, 500);
+                }, 3000);
+            }
+        }
+        
+        function toggleAdminPanel() {
+            const panel = document.getElementById('adminPanel');
+            if (panel.style.display === 'block') {
+                panel.style.display = 'none';
+            } else {
+                panel.style.display = 'block';
+                renderUserList();
+            }
+        }
+        
+        function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const status = document.getElementById('loginStatus');
+            
+            if (!username || !password) {
+                showLoginStatus('Preencha todos os campos!', 'error');
+                return;
+            }
+            
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                sessionStorage.setItem('loggedIn', 'true');
+                sessionStorage.setItem('currentUser', JSON.stringify(user));
+                
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('headerRight').style.display = 'flex';
+                document.getElementById('footer').style.display = 'block';
+                
+                if (user.username === 'admin') {
+                    document.getElementById('adminBtn').style.display = 'block';
+                } else {
+                    document.getElementById('adminBtn').style.display = 'none';
+                }
+            } else {
+                showLoginStatus('Usuário ou senha incorretos!', 'error');
+            }
+        }
+        
+        function logout() {
+            currentUser = null;
+            sessionStorage.removeItem('loggedIn');
+            sessionStorage.removeItem('currentUser');
+            
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('headerRight').style.display = 'none';
+            document.getElementById('footer').style.display = 'none';
+            document.getElementById('adminBtn').style.display = 'none';
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+        
+        function showLoginStatus(message, type) {
+            const status = document.getElementById('loginStatus');
+            status.textContent = message;
+            status.className = 'status';
+            
+            if (type === 'success' || type === 'error') {
+                status.classList.add(type);
+            }
+            
+            setTimeout(() => {
+                status.style.opacity = '1';
+            }, 10);
+            
+            if (type) {
+                setTimeout(() => {
+                    status.style.opacity = '0';
+                    setTimeout(() => {
+                        status.className = 'status';
+                    }, 500);
+                }, 3000);
+            }
+        }
+        
+        window.onload = function() {
+            if (sessionStorage.getItem('loggedIn') === 'true') {
+                currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('headerRight').style.display = 'flex';
+                document.getElementById('footer').style.display = 'block';
+                
+                if (currentUser.username === 'admin') {
+                    document.getElementById('adminBtn').style.display = 'block';
+                } else {
+                    document.getElementById('adminBtn').style.display = 'none';
+                }
+            }
+        };
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        async function generateCodes() {
+            const quantity = document.getElementById('quantity').value;
+            const output = document.getElementById('codes');
+            const caracteres = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const tamanho = 15;
+            let codigos = [];
+
+            for (let i = 0; i < quantity; i++) {
+                let codigo = '';
+                for (let j = 0; j < tamanho; j++) {
+                    const indice = Math.floor(Math.random() * caracteres.length);
+                    codigo += caracteres.charAt(indice);
+                }
+                codigos.push(`https://www.spotify.com/br-pt/premium/?utm_source=br-pt_brand_contextual_text&utm_medium=${codigo}`);
+            }
+
+            output.value = codigos.join('\n');
+        }
+
+        function copyToClipboard() {
+            const copyText = document.getElementById('codes');
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                alert("Códigos copiados para a área de transferência!");
+            }).catch(err => {
+                alert("Erro ao copiar os códigos: ", err);
+            });
+        }
+
+        function downloadTxtFile() {
+            const textToSave = document.getElementById("codes").value;
+            const hiddenElement = document.createElement("a");
+            hiddenElement.href = "data:text/plain;charset=utf-8," + encodeURIComponent(textToSave);
+            hiddenElement.target = "_blank";
+            hiddenElement.download = "Links_premium.txt";
+            hiddenElement.click();
+        }
+        
+        async function checkCodes() {
+            const input = document.getElementById('codesInput').value;
+            const allLinksOutput = document.getElementById('allLinksOutput');
+            const status = document.getElementById('statusMessage');
+            
+            if (!input.trim()) {
+                showStatus('Por favor, insira alguns códigos para verificar.', 'error');
+                return;
+            }
+            
+            const codes = input.split('\n').filter(code => code.trim() !== '');
+            
+            showStatus('Verificando ' + codes.length + ' códigos...', '');
+            
+            let allLinks = [];
+            
+            for (let i = 0; i < codes.length; i++) {
+                const code = codes[i].trim();
+                
+                await new Promise(resolve => setTimeout(resolve, 50));
+                
+                allLinks.push(code);
+            }
+            
+            allLinksOutput.value = allLinks.join('\n');
+            
+            showStatus(
+                `Verificação completa! ${allLinks.length} link(s) verificados.`,
+                'success'
+            );
+        }
+        
+        function showStatus(message, type) {
+            const status = document.getElementById('statusMessage');
+            status.textContent = message;
+            status.className = 'status';
+            
+            if (type === 'success' || type === 'error') {
+                status.classList.add(type);
+            }
+            
+            setTimeout(() => {
+                status.style.opacity = '1';
+            }, 10);
+            
+            if (type) {
+                setTimeout(() => {
+                    status.style.opacity = '0';
+                    setTimeout(() => {
+                        status.className = 'status';
+                    }, 500);
+                }, 5000);
+            }
+        }
+        
+        function clearAll() {
+            document.getElementById('codesInput').value = '';
+            document.getElementById('allLinksOutput').value = '';
+            document.getElementById('statusMessage').className = 'status';
+            showStatus('Campos limpos.', '');
+        }
+        
+        async function copyAllLinks() {
+            const output = document.getElementById('allLinksOutput');
+            
+            if (!output.value.trim()) {
+                showStatus('Nenhum link para copiar.', 'error');
+                return;
+            }
+            
+            try {
+                await navigator.clipboard.writeText(output.value);
+                showStatus('Links copiados!', 'success');
+            } catch (err) {
+                showStatus('Erro ao copiar: ' + err, 'error');
+            }
+        }
+        
+        function exportAllResults() {
+            const allLinks = document.getElementById('allLinksOutput').value;
+            
+            if (!allLinks.trim()) {
+                showStatus('Nenhum resultado para exportar.', 'error');
+                return;
+            }
+            
+            const blob = new Blob([allLinks], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'spotify_links_' + new Date().toISOString().slice(0,10) + '.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('Resultados exportados com sucesso!', 'success');
+        }
+    </script>
+</body>
+</html>
